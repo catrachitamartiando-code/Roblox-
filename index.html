@@ -1,288 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Google drive</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clippy AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-body {
-    margin:0;
-    font-family:Arial, sans-serif;
-    overflow:hidden;
-    height:100vh;
-    background: url('https://static.vecteezy.com/system/resources/thumbnails/038/997/966/small_2x/ai-generated-a-mystical-forest-blanketed-in-morning-mist-and-dappled-sunlight-seamless-looping-4k-time-lapse-virtual-animation-background-video.jpg') center center / cover no-repeat;
-    color:white;
-}
-.glass-effect {
-    background: rgba(25, 25, 25, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    backdrop-filter: blur(10.5px);
-    -webkit-backdrop-filter: blur(10.5px);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-.message {
-    opacity:0;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    max-width:80%;
-    text-align:center;
-    font-size:1.8em;
-    padding:20px;
-    z-index:10;
-}
-.fadeInOut {
-    animation:fadeIn 3s ease-in forwards,fadeOut 3s ease-in forwards 4s;
-}
-@keyframes fadeIn {
-    from {opacity:0; transform:translate(-50%,-50%) scale(0.95)}
-    to {opacity:1; transform:translate(-50%,-50%) scale(1)}
-}
-@keyframes fadeOut {
-    from {opacity:1; transform:translate(-50%,-50%) scale(1)}
-    to {opacity:0; transform:translate(-50%,-50%) scale(1.05)}
-}
-#sidebar {
-    position:fixed;
-    top:0;
-    left:-320px;
-    width:300px;
-    height:100vh;
-    padding:60px 20px 20px 20px;
-    box-sizing:border-box;
-    transition:left 0.3s ease;
-    overflow-y:auto;
-    z-index:20;
-}
-#sidebar.active { left:0; }
-#menuButton {
-    position:fixed;
-    top:15px;
-    left:15px;
-    font-size:2em;
-    cursor:pointer;
-    z-index:30;
-    user-select:none;
-    color:white;
-    text-shadow: 0 0 5px black;
-}
-.sectionTitle { font-weight:bold; margin:10px 0 5px 0; cursor:pointer; }
-.sectionItems { display:none; flex-direction:column; gap:5px; margin-bottom:10px; }
-.sectionItems.active { display:flex; }
-.menuItem { cursor:pointer; padding:5px 10px; border-radius:5px; transition:0.2s; border:1px solid rgba(255,255,255,0.2);}
-.menuItem:hover { background:rgba(255,255,255,0.2); }
-#embedFrame {
-    display:none;
-    width:100%;
-    height:100vh;
-    border:none;
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:1;
-}
-#homeScreen {
-    display:none;
-    width:100%;
-    height:100vh;
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:5;
-    text-align:center;
-    color:white;
-}
-#homeScreenContent {
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    font-size:2em;
-    padding:20px;
-}
-.toggle-box {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 500px;
-    padding: 20px;
-    transition: opacity 0.3s ease, visibility 0.3s;
-    z-index: 100;
-    visibility: hidden;
-    opacity: 0;
-}
-.toggle-box.active {
-    visibility: visible;
-    opacity: 1;
-}
-.toggle-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 8px 10px;
-    min-width: 44px;
-    height: 44px;
-    background: rgba(76, 175, 80, 0.18);
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 12px;
-    z-index: 101;
-    border: 1px solid rgba(255,255,255,0.18);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.30);
-    backdrop-filter: blur(10.5px);
-    -webkit-backdrop-filter: blur(10.5px);
-    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
-    user-select: none;
-    text-shadow: 0 0 3px rgba(0,0,0,0.6);
+  body {
+    font-family: "Comic Sans MS", "Segoe UI", sans-serif;
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.toggle-button:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.40); }
-.toggle-button:active { transform: translateY(0); box-shadow: 0 6px 18px rgba(0,0,0,0.28); }
-@media (max-width: 420px) {
-    .toggle-button {
-        bottom: 14px;
-        right: 14px;
-        padding: 7px 9px;
-        height: 40px;
-        font-size: 13px;
-        border-radius: 10px;
-    }
-}
-label { font-weight: bold; display: block; margin-top: 10px; }
-input, button {
-    padding: 10px;
-    margin-top: 5px;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-button { cursor: pointer; }
-#result { margin-top: 15px; font-size: 16px; color: #a5d6a7; word-wrap: break-word; }
-#openLinkButton { margin-top: 10px; background-color: #2196F3; color: white; }
-.close-button {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #clippy-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  #clippy {
+    width: 140px;
+    height: auto;
+    user-select: none;
+    animation: floaty 3s ease-in-out infinite;
+  }
+
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .speech {
+    background: #ffffe0;
+    border: 2px solid #e5d36b;
+    border-radius: 12px;
+    padding: 12px 16px;
+    max-width: 300px;
+    color: #333;
+    font-size: 14px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
+    bottom: 200px;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: popUp 0.25s ease-out forwards;
+  }
+
+  @keyframes popUp {
+    from { opacity: 0; transform: scale(0.8) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .speech::after {
+    content: "";
+    position: absolute;
+    bottom: -16px;
+    left: 30px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #ffffe0 transparent transparent transparent;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+  }
+
+  #input-area {
+    display: flex;
+    gap: 8px;
+    margin-top: 30px;
+    align-items: center;
+  }
+
+  #user-input {
+    padding: 10px 14px;
+    border-radius: 9999px;
+    border: 1px solid #ccc;
+    outline: none;
+    width: 220px;
+  }
+
+  #user-input:focus { border-color: #888; }
+  #send-btn {
+    background: #0078d7;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 10px 18px;
     cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  #send-btn:hover { background: #005ea6; }
+  #clip-btn {
     background: none;
     border: none;
-    color: white;
-}
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  #clip-btn:hover { transform: rotate(-20deg); }
 </style>
 </head>
 <body>
-<video id="bgVideo" loop
-style="position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1;">
-    <source src="https://github.com/robloxwe23/index/raw/refs/heads/main/ssstik.io_1764642593833.mp4" type="video/mp4">
-</video>
+  <div id="clippy-container">
+    <img id="clippy" src="https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif" alt="Clippy">
+    <div id="bubble-area"></div>
+    <div id="input-area">
+      <button id="clip-btn" title="Attach image">📎</button>
+      <input id="user-input" type="text" placeholder="Ask Clippy something..." />
+      <button id="send-btn">Send</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none;">
+    </div>
+  </div>
 
 <script>
-const bgVideo = document.getElementById("bgVideo");
+const apiKey = "AIzaSyCzNQXv5QifWxlaWu0urbs2FZZrSLrj-Cg";
+const model = "gemini-2.5-flash";
+const bubbleArea = document.getElementById("bubble-area");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
+const clipBtn = document.getElementById("clip-btn");
+const fileInput = document.getElementById("file-input");
+const clippyImg = document.getElementById("clippy");
 
-// Solo reproducir el video con sonido cuando el usuario haga click por primera vez
-document.body.addEventListener("click", () => {
-    bgVideo.play().catch(e => console.log("Video play failed:", e));
-}, { once: true });
+let chatHistory = [];
+let uploadedImage = null;
+let idleTimer;
+
+const systemPrompt = "You are Clippy, Microsoft’s classic paperclip assistant. Always stay cheerful, witty, and eager to help. If asked who you are, say you’re Clippy, created to help people with their tasks. Respond in the user’s language but keep the same friendly Clippy tone, respond with not long answer, understand the user if they feel sad help them just like a psychologist, Anderson builded you to help others. Use emojis to make them feel more better.";
+
+function typeText(element, text, speed = 60) {
+  element.textContent = "";
+  let i = 0;
+  function typing() {
+    if (i < text.length) {
+      element.textContent += text.charAt(i);
+      i++;
+      setTimeout(typing, speed);
+    }
+  }
+  typing();
+}
+
+function showBubble(text, slow = false, image = null) {
+  const old = bubbleArea.querySelector(".speech");
+  if (old) old.remove();
+  const bubble = document.createElement("div");
+  bubble.className = "speech";
+  if(image) bubble.innerHTML = text + "<br><img src='" + image + "' />";
+  else slow ? typeText(bubble, text) : bubble.textContent = text;
+  bubbleArea.appendChild(bubble);
+}
+
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if(!text && !uploadedImage) return;
+  showBubble("IMM THINKINGGG :33");
+  userInput.value = "";
+  clearTimeout(idleTimer);
+  clippyImg.src = "https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif";
+
+  const parts = [];
+  if(text) parts.push({ text });
+  if(uploadedImage) parts.push({ inlineData: { mimeType: uploadedImage.type, data: uploadedImage.base64 } });
+
+  chatHistory.push({ role: "user", parts });
+
+  const contents = [
+    { role: "user", parts: [{ text: systemPrompt }] },
+    ...chatHistory
+  ];
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents })
+    });
+
+    const data = await res.json();
+    const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Oops! My paperclip brain got tangled 😅";
+
+    chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+    showBubble(aiText, true);
+
+    uploadedImage = null;
+    fileInput.value = "";
+
+    setTimeout(() => {
+      clippyImg.src = "https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif";
+      startIdleTimer();
+    }, aiText.length*60 + 500);
+
+  } catch(err) {
+    console.error(err);
+    showBubble("Oops! I lost connection to my office server! 📎💥");
+    startIdleTimer();
+  }
+}
+
+function startIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=>{ clippyImg.src="https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif"; }, 2000);
+}
+
+clipBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedImage = { base64: ev.target.result.split(",")[1], type: file.type };
+    showBubble("Sending your image to Clippy... 📷", false, ev.target.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+
+showBubble("Hello im clippy made by Anderson :>");
+startIdleTimer();
 </script>
-<audio id="myAudio" loop>
-    <source src="https://cdn.pixabay.com/audio/2025/08/19/audio_c32d2a5133.mp3" type="audio/mpeg" />
-</audio>
-
-<div id="firstMessage" class="message glass-effect">SCRIPT MADE BY<br>SCHOOL EXPLOITS</div>
-<div id="secondMessage" class="message glass-effect">This script was made to provide security among students.<br>Used properly it is in beta still.<br>It is used to bypass computer history, so it will not save.</div>
-<div id="thirdMessage" class="message glass-effect">You had been granted<br>Dev Tools powerful tools</div>
-
-<div id="menuButton">&#9776;</div>
-<div id="sidebar" class="glass-effect">
-    <div class="sectionTitle">Home</div>
-    <div class="sectionItems">
-        <div class="menuItem" onclick="goHome()">Home Screen</div>
-    </div>
-
-    <div class="sectionTitle">Games</div>
-    <div class="sectionItems">
-        <div class="menuItem" onclick="openEmbed('https://unblocked-games-onlines.github.io/')">UNBLOCKED GAMES BETA </div>
-        <div class="menuItem" onclick="openInNewTab('value = 0')">NEXT GAME SOON</div>
-    </div>
-
-    <div class="sectionTitle">Tools AI and PROXY</div>
-    <div class="sectionItems">
-        <div class="menuItem" onclick="openEmbed('https://digitalprotgtemplate-38441.chipp.ai/w/chat/')">Digital AI</div>
-        <div class="menuItem" onclick="openEmbed('https://sciences.drsanjay.com.au/')">PROXY</div>
-        <div class="menuItem" onclick="openEmbed('https://schedule-a-meeting.creographix.at/')">NEWWWW PROXYYY</div>
-    </div>
-
-    <div class="sectionTitle">YouTube</div>
-    <div class="sectionItems active">
-        <div class="menuItem" onclick="openEmbed('https://mcwy4l-5173.csb.app/')">YouTube by me</div>
-    </div>
-
-    <div class="sectionTitle">Systems</div>
-    <div class="sectionItems">
-        <div class="menuItem" onclick="openEmbed('https://appetize.io/embed/xc1w6f1krd589zhp22a0mgftyw?autoplay=false&debug=true&device=pixel4&deviceColor=black&embed=true&launchUrl=exp%3A%2F%2Fexp.host%2F%40snack%2Fsdk.48.0.0-eOt7cXp048&orientation=portrait&scale=80&screenOnly=false&xDocMsg=true&xdocMsg=true&params=%7B%22EXDevMenuDisableAutoLaunch%22%3Atrue%2C%22EXKernelLaunchUrlDefaultsKey%22%3A%22exp%3A%2F%2Fexp.host%2F%40snack%2Fsdk.48.0.0-eOt7cXp048%22%2C%22EXKernelDisableNuxDefaultsKey%22%3Atrue%7D')">ANDROID EMULATOR</div>
-        <div class="menuItem" onclick="openEmbed('https://www.winfy.net/runwine/index.php?os=winegui_2_ubuntu-22-amd64')">LINUX DISTRO</div>
-
-        <!-- ⭐ NEW OPTION ADDED ⭐ -->
-        <div class="menuItem" onclick="openEmbed('https://runtime-combination-lane-proprietary.trycloudflare.com/vnc.html')">Linux VMs BETA</div>
-        <!-- ⭐ NOTHING ELSE CHANGED ⭐ -->
-
-    </div>
-</div>
-
-<!-- ✅ FIXED IFRAME WITH FULLSCREEN PERMISSIONS -->
-<iframe id="embedFrame"
-    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-pointer-lock allow-orientation-lock allow-top-navigation"
-    allow="fullscreen; clipboard-read; clipboard-write; pointer-lock"
-    allowfullscreen
-></iframe>
-
-<div id="homeScreen">
-    <div id="homeScreenContent" class="glass-effect">Thanks for the support!<br>This script is in beta.<br>Script made by ANDERSON</div>
-</div>
-
-<div class="toggle-box glass-effect" id="modifierBox">
-    <button class="close-button" onclick="toggleBox()">×</button>
-    <h1>URL Modifier Tool</h1>
-    <label for="inputUrl">Paste the URL:</label>
-    <input type="text" id="inputUrl" placeholder="Enter the URL here..." oninput="modifyUrl()" />
-    <label for="outputUrl">Modified (Obfuscated) URL:</label>
-    <input type="text" id="outputUrl" readonly placeholder="Modified URL will appear here..." />
-    <div id="result"></div>
-    <button id="openLinkButton" style="display: none;" onclick="openLink()">Open URL</button>
-</div>
-
-<button class="toggle-button glass-effect" onclick="toggleBox()" aria-label="Open URL Modifier">
-    Toggle URL
-</button>
-
-<script>
-const first=document.getElementById("firstMessage"),second=document.getElementById("secondMessage"),third=document.getElementById("thirdMessage"),audio=document.getElementById("myAudio"),sidebar=document.getElementById("sidebar"),menuButton=document.getElementById("menuButton"),frame=document.getElementById("embedFrame"),home=document.getElementById("homeScreen"),modifierBox=document.getElementById('modifierBox');
-let decodedUrl='';
-document.body.addEventListener("click",()=>{if(audio.muted){audio.muted=false;audio.play().catch(e=>console.log("Audio play failed:",e));}else if(audio.paused){audio.play().catch(e=>console.log("Audio play failed:",e));}}, {once:true});
-first.classList.add("fadeInOut");
-setTimeout(()=>{first.style.display="none";second.classList.add("fadeInOut")},7000);
-setTimeout(()=>{second.style.display="none";third.classList.add("fadeInOut")},14000);
-setTimeout(()=>{third.style.display="none";sidebar.classList.add('active');goHome();},21000);
-menuButton.addEventListener('click',()=>{sidebar.classList.toggle('active');});
-document.querySelectorAll('.sectionTitle').forEach(t=>{t.addEventListener('click',()=>{t.nextElementSibling.classList.toggle('active');});});
-function openEmbed(url){try{frame.src=url;frame.style.display='block';home.style.display='none';sidebar.classList.remove('active');}catch(e){console.warn("embed failed:",e);window.open(url,'_blank');}}
-function openInNewTab(url){window.open(url,'_blank');}
-function goHome(){frame.style.display='none';frame.src='about:blank';home.style.display='block';sidebar.classList.remove('active');}
-function toggleBox(){modifierBox.classList.toggle('active');}
-function modifyUrl(){let inputUrl=document.getElementById("inputUrl").value;let originalPart="aware/onlinetesting/lockdownbrowser/launch.aspx";let newPart="aware2/onlinetestingapi/onlinetesting";if(inputUrl.includes(originalPart)){let modifiedUrl=inputUrl.replace(originalPart,newPart);let obfuscatedUrl=btoa(modifiedUrl);document.getElementById("outputUrl").value=obfuscatedUrl;document.getElementById("result").innerHTML="URL successfully modified and obfuscated.";decodedUrl=atob(obfuscatedUrl);document.getElementById("openLinkButton").style.display='block';}else{document.getElementById("outputUrl").value='';document.getElementById("result").innerHTML="The URL doesn't contain the expected part.";document.getElementById("openLinkButton").style.display='none';}}
-function openLink(){if(decodedUrl){window.open(decodedUrl,'_blank');}}
-var script=document.createElement('script');script.src="//cdn.jsdelivr.net/npm/eruda";document.body.appendChild(script);script.onload=function(){if(window.eruda)eruda.init();};
-</script>
-
 </body>
 </html>
