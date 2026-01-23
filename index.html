@@ -1,229 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clippy AI</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    font-family: "Comic Sans MS", "Segoe UI", sans-serif;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    overflow: hidden;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>roblox's PS5 Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #0a0e17;
+      color: white;
+      overflow: hidden;
+      height: 100vh;
+      box-sizing: border-box;
+    }
 
-  #clippy-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
+    /* ====================== LOADING SCREEN ====================== */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 1.2s ease;
+    }
 
-  #clippy {
-    width: 140px;
-    height: auto;
-    user-select: none;
-    animation: floaty 3s ease-in-out infinite;
-  }
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
 
-  @keyframes floaty {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
+    .ps-logo {
+      width: 180px;
+      animation: pulse 2s infinite;
+    }
 
-  .speech {
-    background: #ffffe0;
-    border: 2px solid #e5d36b;
-    border-radius: 12px;
-    padding: 12px 16px;
-    max-width: 300px;
-    color: #333;
-    font-size: 14px;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-    position: absolute;
-    bottom: 200px;
-    opacity: 0;
-    transform: scale(0.9);
-    animation: popUp 0.25s ease-out forwards;
-  }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
 
-  @keyframes popUp {
-    from { opacity: 0; transform: scale(0.8) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
+    .loading-text {
+      margin-top: 40px;
+      font-size: 1.6em;
+      letter-spacing: 4px;
+    }
 
-  .speech::after {
-    content: "";
-    position: absolute;
-    bottom: -16px;
-    left: 30px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: #ffffe0 transparent transparent transparent;
-    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
-  }
+    .loading-bar {
+      width: 300px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      margin-top: 30px;
+      overflow: hidden;
+    }
 
-  #input-area {
-    display: flex;
-    gap: 8px;
-    margin-top: 30px;
-    align-items: center;
-  }
+    .loading-fill {
+      width: 0%;
+      height: 100%;
+      background: #007aff;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
 
-  #user-input {
-    padding: 10px 14px;
-    border-radius: 9999px;
-    border: 1px solid #ccc;
-    outline: none;
-    width: 220px;
-  }
+    /* ====================== NAME INPUT SCREEN ====================== */
+    #name-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #001133, #000);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+    }
 
-  #user-input:focus { border-color: #888; }
-  #send-btn {
-    background: #0078d7;
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    padding: 10px 18px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-  }
-  #send-btn:hover { background: #005ea6; }
-  #clip-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  #clip-btn:hover { transform: rotate(-20deg); }
-</style>
+    #name-screen.active {
+      display: flex;
+    }
+
+    .name-box {
+      background: rgba(255,255,255,0.08);
+      padding: 50px 80px;
+      border-radius: 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 60px rgba(0,122,255,0.4);
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .name-box h1 {
+      font-size: 3em;
+      margin-bottom: 30px;
+      color: #007aff;
+    }
+
+    #name-input {
+      padding: 18px 30px;
+      width: 300px;
+      font-size: 1.4em;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid #007aff;
+      border-radius: 15px;
+      color: white;
+      text-align: center;
+    }
+
+    #name-input:focus {
+      outline: none;
+      border-color: #00aaff;
+      box-shadow: 0 0 20px rgba(0,170,255,0.6);
+    }
+
+    #name-btn {
+      margin-top: 30px;
+      padding: 18px 50px;
+      background: #007aff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.4em;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0,122,255,0.6);
+    }
+
+    #name-btn:hover {
+      background: #005ecb;
+      transform: scale(1.05);
+    }
+
+    /* ====================== MAIN DASHBOARD (same as before) ====================== */
+    .background {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+      filter: blur(40px) brightness(0.4);
+      transition: background-image 0.8s ease;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .container.visible {
+      opacity: 1;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background: rgba(10, 14, 23, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-size: 1.8em;
+      margin: 0;
+    }
+
+    .carousel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cards {
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      gap: 40px;
+    }
+
+    .card {
+      width: 280px;
+      height: 380px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      filter: brightness(0.75);
+      position: relative;
+    }
+
+    .card.active {
+      transform: scale(1.2);
+      filter: brightness(1);
+      z-index: 5;
+      box-shadow: 0 30px 60px rgba(0, 122, 255, 0.5);
+      outline: 5px solid #007aff;
+    }
+
+    .card:not(.active) {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+
+    .card-title {
+      position: absolute;
+      bottom: 20px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 1.4em;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 0 0 24px 24px;
+    }
+
+    .details {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 400px;
+      padding: 30px;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(15px);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      z-index: 6;
+    }
+
+    .launch-btn {
+      margin-top: 30px;
+      padding: 18px 40px;
+      background: #007aff;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-size: 1.4em;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0, 122, 255, 0.6);
+      text-transform: uppercase;
+    }
+
+    .categories {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px;
+      background: rgba(10, 14, 23, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .category {
+      padding: 15px 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .category.active, .category:hover {
+      background: #007aff;
+      box-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
+    }
+
+    #app-window {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      z-index: 50;
+    }
+
+    #app-header {
+      height: 60px;
+      background: rgba(0,122,255,0.95);
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      justify-content: space-between;
+      font-size: 1.8em;
+    }
+
+    #close-app {
+      font-size: 34px;
+      cursor: pointer;
+    }
+
+    #app-iframe {
+      flex: 1;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <div id="clippy-container">
-    <img id="clippy" src="https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif" alt="Clippy">
-    <div id="bubble-area"></div>
-    <div id="input-area">
-      <button id="clip-btn" title="Attach image">📎</button>
-      <input id="user-input" type="text" placeholder="Ask Clippy something..." />
-      <button id="send-btn">Send</button>
-      <input type="file" id="file-input" accept="image/*" style="display:none;">
+
+  <!-- PS5 Style Loading Screen -->
+  <div id="loading-screen">
+    <svg class="ps-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="40" fill="none" stroke="#007aff" stroke-width="8"/>
+      <path d="M30 50 Q50 20, 70 50" fill="none" stroke="#007aff" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div class="loading-text">PLAYSTATION</div>
+    <div class="loading-bar">
+      <div class="loading-fill" id="loading-fill"></div>
     </div>
   </div>
 
-<script>
-const apiKey = "AIzaSyBmc9gIhysEmmmzk6opFtOhCvkiEMoM714";
-const model = "gemini-2.5-flash";
-const bubbleArea = document.getElementById("bubble-area");
-const userInput = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
-const clipBtn = document.getElementById("clip-btn");
-const fileInput = document.getElementById("file-input");
-const clippyImg = document.getElementById("clippy");
+  <!-- Name Input Screen -->
+  <div id="name-screen">
+    <div class="name-box">
+      <h1>Welcome</h1>
+      <input type="text" id="name-input" placeholder="Enter your name" maxlength="20">
+      <button id="name-btn">Continue</button>
+    </div>
+  </div>
 
-let chatHistory = [];
-let uploadedImage = null;
-let idleTimer;
+  <!-- Main Dashboard -->
+  <div class="background" id="background"></div>
 
-const systemPrompt = "You are Clippy, Microsoft’s classic paperclip assistant. Always stay cheerful, witty, and eager to help. If asked who you are, say you’re Clippy, created to help people with their tasks. Respond in the user’s language but keep the same friendly Clippy tone, respond with not long answer, understand the user if they feel sad help them just like a psychologist, Anderson builded you to help others. Use emojis to make them feel more better.";
+  <div class="container" id="main-container">
+    <div class="header">
+      <h1 id="user-greeting">roblox's Dashboard</h1>
+    </div>
 
-function typeText(element, text, speed = 60) {
-  element.textContent = "";
-  let i = 0;
-  function typing() {
-    if (i < text.length) {
-      element.textContent += text.charAt(i);
-      i++;
-      setTimeout(typing, speed);
-    }
-  }
-  typing();
-}
+    <div class="carousel">
+      <div class="cards" id="cards">
+        <div class="card active"
+             style="background-image: url('https://wallpapers.com/images/featured/ubuntu-z6rtxbp6rijb53hx.jpg');"
+             data-title="LINUX"
+             data-desc="Run Wine GUI on Ubuntu - Linux environment in browser."
+             data-bg="https://wallpapers.com/images/featured/ubuntu-z6rtxbp6rijb53hx.jpg"
+             data-url="https://www.winfy.net/runwine/index.php?os=winegui_2_ubuntu-22-amd64">
+          <div class="card-title">LINUX</div>
+        </div>
 
-function showBubble(text, slow = false, image = null) {
-  const old = bubbleArea.querySelector(".speech");
-  if (old) old.remove();
-  const bubble = document.createElement("div");
-  bubble.className = "speech";
-  if(image) bubble.innerHTML = text + "<br><img src='" + image + "' />";
-  else slow ? typeText(bubble, text) : bubble.textContent = text;
-  bubbleArea.appendChild(bubble);
-}
+        <div class="card"
+             style="background-image: url('https://images.stockcake.com/public/1/b/4/1b411215-b8c4-4859-aa96-757915fb8f99_large/human-ai-interface-stockcake.jpg');"
+             data-title="Digital"
+             data-desc="Advanced digital AI chat and tools."
+             data-bg="https://thumbs.dreamstime.com/b/metaverse-fantasy-concept-person-visits-futuristic-cyber-city-generative-ai-virtual-fantastic-world-theme-portal-vr-268666913.jpg"
+             data-url="https://digitalprotgtemplate-38441.chipp.ai/w/chat/">
+          <div class="card-title">Digital</div>
+        </div>
 
-async function sendMessage() {
-  const text = userInput.value.trim();
-  if(!text && !uploadedImage) return;
-  showBubble("IMM THINKINGGG :33");
-  userInput.value = "";
-  clearTimeout(idleTimer);
-  clippyImg.src = "https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif";
+        <div class="card"
+             style="background-image: url('https://www.blackdown.org/wp-content/uploads/2023/01/How-a-Proxy-Server-Works.jpg.webp');"
+             data-title="PROXY"
+             data-desc="Secure proxy browsing and tools."
+             data-bg="https://www.blackdown.org/wp-content/uploads/2023/01/How-a-Proxy-Server-Works.jpg.webp"
+             data-url="https://sciences.drsanjay.com.au/">
+          <div class="card-title">PROXY</div>
+        </div>
 
-  const parts = [];
-  if(text) parts.push({ text });
-  if(uploadedImage) parts.push({ inlineData: { mimeType: uploadedImage.type, data: uploadedImage.base64 } });
+        <div class="card"
+             style="background-image: url('https://image.api.playstation.com/vulcan/ap/rnd/202008/1020/Kq7iou5mZ9y6HlbF7QGCGS2P.jpg');"
+             data-title="Astro's Playroom"
+             data-desc="Explore PlayStation history with fun platforming."
+             data-bg="https://wallpapers.com/images/hd/ps5-welcome-screen-message-4s77cjgcnxnqt7ke.jpg">
+          <div class="card-title">Astro's Playroom</div>
+        </div>
 
-  chatHistory.push({ role: "user", parts });
+        <div class="card"
+             style="background-image: url('https://image.api.playstation.com/vulcan/ap/rnd/202008/1300/5JzcA5RKo3i3p1t2Q0qXzQ.png');"
+             data-title="Spider-Man: Miles Morales"
+             data-desc="Swing through New York as Miles."
+             data-bg="https://wallpapercave.com/wp/wp6623882.jpg">
+          <div class="card-title">Spider-Man</div>
+        </div>
+      </div>
+    </div>
 
-  const contents = [
-    { role: "user", parts: [{ text: systemPrompt }] },
-    ...chatHistory
-  ];
+    <div class="details" id="details">
+      <h1>LINUX</h1>
+      <p>Run Wine GUI on Ubuntu - Linux environment in browser.</p>
+      <button class="launch-btn" id="launch-btn">Launch</button>
+    </div>
+  </div>
 
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents })
+  <div class="categories">
+    <div class="category active">Home</div>
+    <div class="category">Apps</div>
+    <div class="category">Media</div>
+    <div class="category">Store</div>
+  </div>
+
+  <div id="app-window">
+    <div id="app-header">
+      <span id="app-title">App</span>
+      <span id="close-app">×</span>
+    </div>
+    <iframe id="app-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+  </div>
+
+  <script>
+    // Loading simulation
+    const loadingFill = document.getElementById('loading-fill');
+    const loadingScreen = document.getElementById('loading-screen');
+    const nameScreen = document.getElementById('name-screen');
+    const mainContainer = document.getElementById('main-container');
+    const userGreeting = document.getElementById('user-greeting');
+
+    let progress = 0;
+    const loadingInterval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(loadingInterval);
+        loadingFill.style.width = '100%';
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+          setTimeout(() => {
+            nameScreen.classList.add('active');
+          }, 500);
+        }, 800);
+      }
+      loadingFill.style.width = progress + '%';
+    }, 300);
+
+    // Name input
+    const nameInput = document.getElementById('name-input');
+    const nameBtn = document.getElementById('name-btn');
+
+    nameBtn.addEventListener('click', saveName);
+    nameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') saveName();
     });
 
-    const data = await res.json();
-    const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Oops! My paperclip brain got tangled 😅";
+    function saveName() {
+      let name = nameInput.value.trim();
+      if (name === '') name = 'roblox';
+      userGreeting.textContent = `${name}'s Dashboard`;
+      nameScreen.style.opacity = '0';
+      setTimeout(() => {
+        nameScreen.style.display = 'none';
+        mainContainer.classList.add('visible');
+      }, 800);
+    }
 
-    chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-    showBubble(aiText, true);
+    // Dashboard script (same as before)
+    const cards = document.querySelectorAll(".card");
+    const cardsContainer = document.getElementById("cards");
+    const details = document.getElementById("details");
+    const bg = document.getElementById("background");
+    const launchBtn = document.getElementById("launch-btn");
+    const appWindow = document.getElementById("app-window");
+    const appIframe = document.getElementById("app-iframe");
+    const appTitle = document.getElementById("app-title");
+    const closeApp = document.getElementById("close-app");
 
-    uploadedImage = null;
-    fileInput.value = "";
+    let activeIndex = 0;
 
-    setTimeout(() => {
-      clippyImg.src = "https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif";
-      startIdleTimer();
-    }, aiText.length*60 + 500);
+    function updateActive(index) {
+      activeIndex = (index + cards.length) % cards.length;
+      cards.forEach((c, i) => c.classList.toggle("active", i === activeIndex));
+      const activeCard = cards[activeIndex];
+      details.querySelector("h1").textContent = activeCard.dataset.title;
+      details.querySelector("p").textContent = activeCard.dataset.desc;
+      bg.style.backgroundImage = `url(${activeCard.dataset.bg})`;
+      const cardWidth = cards[0].offsetWidth + 40;
+      const offset = -activeIndex * cardWidth + (window.innerWidth / 2 - cardWidth / 2);
+      cardsContainer.style.transform = `translateX(${offset}px)`;
+    }
 
-  } catch(err) {
-    console.error(err);
-    showBubble("Oops! I lost connection to my office server! 📎💥");
-    startIdleTimer();
-  }
-}
+    launchBtn.addEventListener("click", () => {
+      const activeCard = cards[activeIndex];
+      if (activeCard.dataset.url) {
+        appIframe.src = activeCard.dataset.url;
+        appTitle.textContent = activeCard.dataset.title;
+        appWindow.style.display = "flex";
+      }
+    });
 
-function startIdleTimer() {
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(()=>{ clippyImg.src="https://img1.picmix.com/output/stamp/thumb/3/8/8/7/2467883_08350.gif"; }, 2000);
-}
+    closeApp.addEventListener("click", () => {
+      appWindow.style.display = "none";
+      appIframe.src = "";
+    });
 
-clipBtn.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", e => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    uploadedImage = { base64: ev.target.result.split(",")[1], type: file.type };
-    showBubble("Sending your image to Clippy... 📷", false, ev.target.result);
-  };
-  reader.readAsDataURL(file);
-});
+    cards.forEach((card, i) => card.addEventListener("click", () => updateActive(i)));
 
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keydown", e => { if(e.key==="Enter") sendMessage(); });
+    document.addEventListener("keydown", (e) => {
+      if (appWindow.style.display === "flex") return;
+      if (e.key === "ArrowRight") updateActive(activeIndex + 1);
+      if (e.key === "ArrowLeft") updateActive(activeIndex - 1);
+      if (e.key === "Enter") launchBtn.click();
+    });
 
-showBubble("Hello im clippy made by Anderson :>");
-startIdleTimer();
-</script>
+    let touchStartX = 0;
+    document.querySelector('.carousel').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+    document.querySelector('.carousel').addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) updateActive(activeIndex + (diff > 0 ? 1 : -1));
+    });
+
+    updateActive(0);
+  </script>
 </body>
 </html>
